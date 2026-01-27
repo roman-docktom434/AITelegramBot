@@ -1,0 +1,69 @@
+import asyncio
+from aiogram import Bot
+
+
+async def main():
+    # Замените на ваш токен
+    bot = Bot(token="8545785052:AAHaGJNisF2ig74D_EomT33kxRn7GPlBYUk")
+
+    # Отправка сообщения в канал по его юзернейму или ID
+    await bot.send_message(chat_id="@TheQuickNewsOff", text="Привет, это пост от бота!")
+
+    await bot.session.close()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from playwright.sync_api import sync_playwright
+
+def run():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+        page = context.new_page()
+
+        url = "https://www.rbc.ru/rbcfreenews/696a98c09a794767ba41ceb6"
+        page.goto(url, wait_until="domcontentloaded")
+
+        try:
+            page.wait_for_selector('.paragraph', timeout=5000)
+        except:
+            None
+
+        page.evaluate("""() => {
+            const extra = document.querySelectorAll('.base-card-template, .card-wrapper, .styles_material-meta__YmNNn');
+            extra.forEach(el => el.remove());
+        }""")
+
+        content_selector = ".article__text p, .paragraph"
+        paragraphs = page.locator(content_selector).all_inner_texts()
+
+        if not paragraphs:
+            print("Пусто. Возможно, сайт изменил структуру.")
+        else:
+            for text in paragraphs:
+                if text.strip():
+                    return text.strip()
+
+        browser.close()
+
+
+if __name__ == "__main__":
+    print(run())
